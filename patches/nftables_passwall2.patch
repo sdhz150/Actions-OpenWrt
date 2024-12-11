@@ -12,7 +12,7 @@ index 6511ef23..47d105bd 100644
 --- a/package/passwall2/luci-app-passwall2/Makefile
 +++ b/package/passwall2/luci-app-passwall2/Makefile
 @@ -9,18 +9,13 @@ PKG_VERSION:=24.11.19
- PKG_RELEASE:=1
+ PKG_RELEASE:=3
  
  PKG_CONFIG_DEPENDS:= \
 -	CONFIG_PACKAGE_$(PKG_NAME)_Iptables_Transparent_Proxy \
