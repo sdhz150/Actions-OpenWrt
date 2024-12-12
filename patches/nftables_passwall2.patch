@@ -1,17 +1,17 @@
-From 1c493724cadb71333ec58ba7938b5f968076162f Mon Sep 17 00:00:00 2001
+From 2a235c4a14412c94b5719c4c4254c3cd89f5a2f1 Mon Sep 17 00:00:00 2001
 From: sdhz151 <yanghui140@gmail.com>
-Date: Sun, 1 Dec 2024 10:10:03 +0800
+Date: Thu, 12 Dec 2024 08:28:14 +0800
 Subject: [PATCH] Update Makefile
 
 ---
- luci-app-passwall2/Makefile | 42 -------------------------------------
- 1 file changed, 42 deletions(-)
+ luci-app-passwall2/Makefile | 43 -------------------------------------
+ 1 file changed, 43 deletions(-)
 
 diff --git a/package/passwall2/luci-app-passwall2/Makefile b/package/passwall2/luci-app-passwall2/Makefile
-index 6511ef23..47d105bd 100644
+index 08f79b5f..a9d86e0d 100644
 --- a/package/passwall2/luci-app-passwall2/Makefile
 +++ b/package/passwall2/luci-app-passwall2/Makefile
-@@ -9,18 +9,13 @@ PKG_VERSION:=24.11.19
+@@ -9,18 +9,13 @@ PKG_VERSION:=24.12.11
  PKG_RELEASE:=3
  
  PKG_CONFIG_DEPENDS:= \
@@ -30,7 +30,7 @@ index 6511ef23..47d105bd 100644
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs \
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SingBox \
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client \
-@@ -44,22 +39,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat
+@@ -45,22 +40,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat
  
  if PACKAGE_$(PKG_NAME)
  
@@ -52,8 +52,8 @@ index 6511ef23..47d105bd 100644
 -
  config PACKAGE_$(PKG_NAME)_Nftables_Transparent_Proxy
  	bool "Nftables Transparent Proxy"
- 	select PACKAGE_dnsmasq-full
-@@ -85,17 +65,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy
+ 	select PACKAGE_chinadns-ng
+@@ -88,17 +67,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy
  	select PACKAGE_naiveproxy
  	default n
  
@@ -71,7 +71,7 @@ index 6511ef23..47d105bd 100644
  config PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Rust_Client
  	bool "Include Shadowsocks Rust Client"
  	depends on aarch64||arm||i386||mips||mipsel||x86_64
-@@ -108,17 +77,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Rust_Server
+@@ -111,17 +79,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Rust_Server
  	select PACKAGE_shadowsocks-rust-ssserver
  	default n
  
