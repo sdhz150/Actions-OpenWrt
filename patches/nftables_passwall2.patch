@@ -30,12 +30,13 @@ index 6511ef23..47d105bd 100644
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs \
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SingBox \
  	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client \
-@@ -44,21 +39,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat
+@@ -44,22 +39,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat
  
  if PACKAGE_$(PKG_NAME)
  
 -config PACKAGE_$(PKG_NAME)_Iptables_Transparent_Proxy
 -	bool "Iptables Transparent Proxy"
+-	select PACKAGE_chinadns-ng
 -	select PACKAGE_dnsmasq-full
 -	select PACKAGE_dnsmasq_full_ipset
 -	select PACKAGE_ipset
