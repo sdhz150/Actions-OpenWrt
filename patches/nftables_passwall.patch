@@ -11,8 +11,7 @@ diff --git a/package/passwall1/luci-app-passwall/Makefile b/package/passwall1/lu
 index c87e4d051a..5ce670bda0 100644
 --- a/package/passwall1/luci-app-passwall/Makefile
 +++ b/package/passwall1/luci-app-passwall/Makefile
-@@ -10,17 +10,12 @@ PKG_VERSION:=24.11.23
- PKG_RELEASE:=2
+@@ -10,16 +10,11 @@ PKG_VERSION:=24.11.23
  
  PKG_CONFIG_DEPENDS:= \
 -	CONFIG_PACKAGE_$(PKG_NAME)_Iptables_Transparent_Proxy \
