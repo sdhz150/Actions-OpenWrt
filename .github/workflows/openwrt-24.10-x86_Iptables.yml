@@ -1,0 +1,271 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+
+name: X86_openwrt-24.10_Iptables
+
+on:
+ repository_dispatch:
+ schedule:
+    - cron: 0 21 * * *
+ workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+
+env:
+  REPO_URL: https://github.com/openwrt/openwrt.git
+  REPO_BRANCH: openwrt-24.10
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: config/x86/Iptables-24.10.config
+ # CONFIG_URL: https://raw.githubusercontent.com/sdhz153/Actions-OpenWrt/main/config/x86/openwrt-23.05/nftables.config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev python3-distutils python3-setuptools rsync swig unzip zlib1g-dev file wget
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: Clone source code
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: Load custom feeds
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Add passwall
+      id: Addpasswall
+      run: |
+        cd openwrt
+        git clone -b main https://github.com/fw876/helloworld package/helloworld
+        git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
+        git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+
+    - name: Install feeds
+      run: cd openwrt && ./scripts/feeds install -a
+
+    - name: Add app vlmcsd
+      id: appvlmcsd
+      run: |
+       cd openwrt
+       mkdir -p feeds/luci/applications/luci-app-vlmcsd
+       cd feeds/luci/applications/luci-app-vlmcsd
+       git init
+       git remote add origin https://github.com/immortalwrt/luci.git
+       git config core.sparsecheckout true
+       echo "applications/luci-app-vlmcsd" >> .git/info/sparse-checkout
+       git pull --depth 1 origin openwrt-24.10
+
+    - name: Add vlmcsd
+      id: vlmcsd
+      run: |
+       cd openwrt
+       mkdir -p package/vlmcsd
+       cd package/vlmcsd
+       git init
+       git remote add origin https://github.com/immortalwrt/packages.git
+       git config core.sparsecheckout true
+       echo "net/vlmcsd" >> .git/info/sparse-checkout
+       git pull --depth 1 origin openwrt-24.10
+
+    - name: Merge duplicates
+      run: |
+        cd openwrt
+        sudo rm -rf package/feeds/packages/microsocks
+        sudo rm -rf feeds/packages/net/microsocks
+        sudo rm -rf package/feeds/packages/sing-box
+        sudo rm -rf feeds/packages/net/sing-box
+        sudo rm -rf package/feeds/packages/trojan-go
+        sudo rm -rf feeds/packages/net/trojan-go
+        sudo rm -rf package/feeds/packages/v2ray-core
+        sudo rm -rf feeds/packages/net/v2ray-core
+        sudo rm -rf package/feeds/packages/v2ray-geodata
+        sudo rm -rf feeds/packages/net/v2ray-geodata
+        sudo rm -rf package/feeds/packages/xray-core
+        sudo rm -rf feeds/packages/net/xray-core
+        sudo rm -rf feeds/packages/net/v2ray-geodata
+
+    - name: Soft connection
+      id: soft
+      run: |
+       cd openwrt
+       mkdir -p package/feeds/luci
+       mv feeds/luci/applications/luci-app-vlmcsd/applications/luci-app-vlmcsd/* feeds/luci/applications/luci-app-vlmcsd
+       rm -rf feeds/luci/applications/luci-app-vlmcsd/applications
+       rm -rf feeds/luci/applications/luci-app-vlmcsd/.git
+       ln -sf ../../../feeds/luci/applications/luci-app-vlmcsd package/feeds/luci/luci-app-vlmcsd
+       mv package/vlmcsd/net/vlmcsd/* package/vlmcsd
+       rm -rf package/vlmcsd/net
+       rm -rf package/vlmcsd/.git
+ 
+    - name: Load custom configuration
+      run: |
+        [ -e files ] && mv files openwrt/files
+        if [[ $CONFIG_URL && $CONFIG_FILE ]]; then
+           wget -P ${CONFIG_FILE} ${CONFIG_URL}
+           [ -e $CONFIG_FILE/* ] && mv $CONFIG_FILE/* openwrt/.config
+           echo "==================="
+           echo "远程下载config设置完成"
+           echo "==================="
+        elif [[ ! $CONFIG_URL && $CONFIG_FILE ]]; then
+           [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+           echo "==================="
+           echo "复制本地config设置完成"
+           echo "==================="
+        fi
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
+
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+    - name: Download package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "status=success" >> $GITHUB_OUTPUT
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo "FILE_DATE=_$(date +"24.10-Iptables"-"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
+
+    - name: Upload bin directory
+      uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: openwrt/bin
+
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+
+    - name: Upload firmware to cowtransfer
+      id: cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        echo "url=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
+
+    - name: Upload firmware to WeTransfer
+      id: wetransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+        echo "url=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
+
+    - name: Generate release tag
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      run: |
+        echo "release_tag=$(date +"%Y.%m.%d-%H%M"-"openwrt-24.10-Iptables")" >> $GITHUB_OUTPUT
+        touch release.txt
+        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload firmware to release
+      uses: sdhz151/action-gh-release@master
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        files: ${{ env.FIRMWARE }}/*
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.REPO_TOKEN }}
+        repository: ${{ github.repository }}
+     #   delete_workflow_pattern: X86_openwrt-24.10_Iptables
+        retain_days: 0
+        keep_minimum_runs: 1
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@master
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        repo: ${{ github.repository }}  
+        keep_latest: 3
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
