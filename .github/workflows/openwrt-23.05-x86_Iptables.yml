@@ -92,7 +92,7 @@ jobs:
         sudo rm -rf feeds/packages/net/microsocks
         sudo rm -rf feeds/packages/net/v2ray-core
         sudo rm -rf feeds/packages/net/xray-core
-	sudo rm -rf feeds/packages/net/v2ray-geodata
+        sudo rm -rf feeds/packages/net/v2ray-geodata
 
     - name: Add app vlmcsd
       id: appvlmcsd
