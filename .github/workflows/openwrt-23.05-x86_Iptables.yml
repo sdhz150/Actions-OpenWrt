@@ -12,8 +12,8 @@ name: X86_openwrt-23.05_Iptables
 
 on:
  repository_dispatch:
- schedule:
-    - cron: 0 21 * * *
+# schedule:
+#    - cron: 0 21 * * *
  workflow_dispatch:
     inputs:
       ssh:
