@@ -104,7 +104,6 @@ if ip link show eth1 >/dev/null 2>&1; then
    uci commit network
    /etc/init.d/network restart
 fi
-
-          exit 0
-          EOF
-          chmod +x files/etc/uci-defaults/99-custom-usb-network
+exit 0
+EOF
+chmod +x files/etc/uci-defaults/99-custom-usb-network
