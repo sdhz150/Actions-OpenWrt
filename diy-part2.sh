@@ -87,23 +87,4 @@ CONFIG_TCP_CONG_BBR=y
 CONFIG_DEFAULT_TCP_CONG="bbr"
 CONFIG_DEFAULT_BBR=y
 EOF
-
-# 解决系统识别到了 eth1 但没有自动绑定为接口的问题
-mkdir -p files/etc/uci-defaults
-cat << 'EOF' > files/etc/uci-defaults/99-custom-usb-network
-#!/bin/sh
-# 延时等待 USB 网卡在系统启动时拉起
-sleep 2
-# 如果探测到了 eth1，自动将其设置为 WAN 口
-if ip link show eth1 >/dev/null 2>&1; then
-   ip link set eth1 up
-   uci set network.wan.device='eth1'
-   uci set network.wan.proto='dhcp'
-   uci set network.wan6.device='eth1'
-   uci set network.wan6.proto='dhcpv6'
-   uci commit network
-   /etc/init.d/network restart
-fi
-exit 0
-EOF
-chmod +x files/etc/uci-defaults/99-custom-usb-network
+echo "已成功写入开启配置"
