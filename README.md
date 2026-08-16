@@ -6,7 +6,7 @@ https://github.com/sdhz151/tu/blob/main/2-Actions-OpenWrt.jpg
 
 -------usb8152----wan口缺失，执行----------------
 
-ssh-keygen -R 192.168.2.1
+*～～ssh-keygen -R 192.168.2.1～～*
 
 rm -f /etc/board.json
 
