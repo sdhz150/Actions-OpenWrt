@@ -97,7 +97,11 @@ EOF
 echo "已成功写入开启配置"
 
 if [[ $CACHE_TRADEMARK = *"AC2100-helloworld"* ]]; then
-cat > files/etc/uci-defaults/99-custom-wifi >>EOF
+  # 确保目标目录存在
+  mkdir -p files/etc/uci-defaults
+
+  # 使用单引号 'EOF' 防止变量在写入文件前被宿主机提前解析
+  cat << 'EOF' > files/etc/uci-defaults/99-custom-wifi
 #!/bin/sh
 
 # xiaomi_redmi-router-ac2100 循环查找所有已识别的 radio 接口并开启
@@ -109,5 +113,9 @@ uci commit wireless
 wifi reload
 exit 0
 EOF
-echo "已成功写入ac2100开启配置"
+
+  # 赋予可执行权限
+  chmod +x files/etc/uci-defaults/99-custom-wifi
+
+  echo "已成功写入ac2100开启配置"
 fi
