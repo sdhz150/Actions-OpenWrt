@@ -95,3 +95,19 @@ CONFIG_DEFAULT_TCP_CONG="bbr"
 CONFIG_DEFAULT_BBR=y
 EOF
 echo "已成功写入开启配置"
+
+if [[ $CACHE_TRADEMARK = *"AC2100-helloworld"* ]]; then
+cat > files/etc/uci-defaults/99-custom-wifi >>EOF
+#!/bin/sh
+
+# xiaomi_redmi-router-ac2100 循环查找所有已识别的 radio 接口并开启
+for radio in $(uci show wireless | grep '=wifi-device' | cut -d'.' -f2 | cut -d'=' -f1); do
+    uci set wireless.${radio}.disabled='0'
+done
+
+uci commit wireless
+wifi reload
+exit 0
+EOF
+echo "已成功写入ac2100开启配置"
+fi

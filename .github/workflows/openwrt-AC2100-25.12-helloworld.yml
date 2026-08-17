@@ -1,6 +1,6 @@
 # Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
 # 协议声明：MIT开源协议，自由使用/修改，需保留原版权声明
-name: openwrt-25.12-helloworld
+name: openwrt-AC2100-25.12-helloworld
 
 # 工作流触发方式：手动触发(核心)+定时触发+仓库事件触发
 on:
@@ -19,9 +19,9 @@ env:
   REPO_URL: https://github.com/openwrt/openwrt.git
   REPO_BRANCH: openwrt-25.12
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: config/x86/config.buildinfo
-  CONFIG_URL: https://raw.githubusercontent.com/sdhz153/Actions-OpenWrt/refs/heads/main/config/x86/config.buildinfo
-  OFFICIAL_CONFIG_URL: https://raw.githubusercontent.com/sdhz151/Actions-OpenWrt/refs/heads/main/config/x86/config.buildinfo
+  CONFIG_FILE: config/ac2100/config.buildinfo
+  CONFIG_URL: https://raw.githubusercontent.com/sdhz150/Actions-OpenWrt/refs/heads/main/config/ac2100/config.buildinfo
+  OFFICIAL_CONFIG_URL: https://raw.githubusercontent.com/sdhz150/Actions-OpenWrt/refs/heads/main/config/ac2100/config.buildinfo
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
@@ -30,7 +30,7 @@ env:
   UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  CACHE_TRADEMARK: helloworld
+  CACHE_TRADEMARK: AC2100-helloworld
 
 # 核心编译任务：单任务串行，Ubuntu24.04环境
 jobs:
@@ -141,7 +141,6 @@ jobs:
           # 克隆各核心功能插件
           git_clone_retry https://github.com/sbwml/luci-app-mosdns.git v5 package/mosdns
           git_clone_retry https://github.com/sbwml/v2ray-geodata.git master package/v2ray-geodata
-          git_clone_retry https://github.com/sdhz151/openwrt-app.git main package/app
           git_clone_retry https://github.com/fw876/helloworld.git master package/helloworld
           sed -i '/PKG_MIRROR_HASH:=/d' package/helloworld/simple-obfs/Makefile
           sed -i '/PKG_SOURCE:=/a PKG_MIRROR_HASH:=skip' package/helloworld/simple-obfs/Makefile
@@ -158,13 +157,7 @@ jobs:
         run: |
           set -euo pipefail
           cd openwrt
-          [ -d "package/app/brutal" ] && mv package/app/brutal package/
-          [ -d "package/app/vlmcsd" ] && mv package/app/vlmcsd package/
-          [ -d "package/app/luci-app-vlmcsd" ] && mv package/app/luci-app-vlmcsd feeds/luci/applications/
-          mkdir -p package/feeds/luci
-          ln -sf ../../../feeds/luci/applications/luci-app-vlmcsd package/feeds/luci/luci-app-vlmcsd
           # 清理冗余目录，保持编译环境整洁
-          [ -d "package/app" ] && rm -rf package/app
           [ -d "feeds/packages/net/dnsproxy" ] && rm -rf feeds/packages/net/dnsproxy
           [ -d "feeds/packages/net/microsocks" ] && rm -rf feeds/packages/net/microsocks
           [ -d "feeds/packages/net/v2ray-core" ] && rm -rf feeds/packages/net/v2ray-core
@@ -209,10 +202,10 @@ jobs:
                   else
                       echo "❌ 自定义远程配置文件下载失败/为空，加载官方默认配置"
                       rm -f $TARGET_CONFIG
-                      # 第三级：远程配置失效，加载OpenWrt官方 x86_64默认配置
+                      # 第三级：远程配置失效，加载OpenWrt官方 AC2100默认配置
                       wget -q -O $TARGET_CONFIG "${{ env.OFFICIAL_CONFIG_URL }}"
                       if [ -s $TARGET_CONFIG ]; then
-                          echo "✅ OpenWrt官方 x86_64配置加载成功"
+                          echo "✅ OpenWrt官方 AC2100配置加载成功"
                       else
                           echo "❌ 官方配置下载失败，将使用源码默认配置"
                           rm -f $TARGET_CONFIG
@@ -223,7 +216,7 @@ jobs:
                   echo "ℹ️  自定义远程配置未配置，直接加载官方默认配置"
                   wget -q -O $TARGET_CONFIG "${{ env.OFFICIAL_CONFIG_URL }}"
                   if [ -s $TARGET_CONFIG ]; then
-                      echo "✅ OpenWrt官方 x86_64配置加载成功"
+                      echo "✅ OpenWrt官方 AC2100配置加载成功"
                   else
                       echo "❌ 官方配置下载失败，将使用源码默认配置"
                       rm -f $TARGET_CONFIG
@@ -244,27 +237,6 @@ jobs:
           chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
-          
-          # 强制开启核心插件，无需手动在.config中配置
-          echo "CONFIG_PACKAGE_kmod-tcp-brutal=y" >> .config
-          echo "CONFIG_PACKAGE_luci-app-vlmcsd=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-vlmcsd-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_vlmcsd=y" >> .config
-          # 开启ssr-plus插件，写入.config配置文件，编译系统自动识别
-          echo 'CONFIG_PACKAGE_iptables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_arptables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_ebtables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_xtables-nft=y' >>.config
-          echo "CONFIG_PACKAGE_luci-app-ssr-plus=y" >> .config
-          echo "CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Shadowsocks_Libev_Client=y" >> .config
-          echo "# CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_Shadowsocks_Rust_Client is not set" >> .config
-          echo "CONFIG_PACKAGE_shadowsocks-libev-ss-local=y" >> .config
-          echo "CONFIG_PACKAGE_shadowsocks-libev-ss-redir=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-ssr-plus-zh-cn=y" >> .config
-          # 再次补全配置，确保新增项生效
-          make defconfig >/dev/null 2>&1
-          echo "🔧 固件配置加载&优化补丁应用完成，核心插件已强制开启"
-          echo "STEP: Load custom firmware configuration completed — $(date +%Y-%m-%d\ %H:%M:%S)"
 
       # 步骤13：预下载所有编译依赖包
       - name: 预下载所有编译依赖包
@@ -311,7 +283,7 @@ jobs:
           # 容错逻辑：多线程失败→单线程→单线程详细日志，便于定位错误
           make || make -j1 || make -j1 V=s
           # 提取设备名称，用于固件命名
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' || echo "x86_64")
+          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' || echo "AC2100")
           echo "DEVICE_NAME=${DEVICE_NAME}" >> $GITHUB_ENV
           echo "BUILD_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "✅ 固件编译完成"
@@ -343,7 +315,7 @@ jobs:
           name: ${{ env.REPO_BRANCH }}-${{ env.DEVICE_NAME }}-${{ env.CACHE_TRADEMARK }}-${{ env.BUILD_DATE }}-${{ github.run_id }}
           body: |
             ## 📦 OpenWrt  固件编译结果
-            - 固件架构: ${{ env.DEVICE_NAME }} (x86_64)
+            - 固件架构: ${{ env.DEVICE_NAME }} (AC2100)
             - 内核规则: nftables（新一代内核防火墙，性能更优）
             - 核心插件: helloworld/mosdns/vlmcsd
             - 编译时间: ${{ env.BUILD_DATE }}
