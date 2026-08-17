@@ -67,6 +67,7 @@ else
     echo "⚠️ 警告：在 $GITHUB_WORKSPACE/patches/ 下未找到 0001-Revert-base-files-move-config_generate-to-preinit.patch 补丁文件！"
 fi
 
+if [[ $CACHE_TRADEMARK != *"AC2100-helloworld"* ]]; then
 # 检查并批量复制所有 BBR3 补丁
 if ls $GITHUB_WORKSPACE/patches/900-bbr3.patch 1> /dev/null 2>&1; then
     mkdir -p target/linux/generic/hack-6.12
@@ -95,6 +96,7 @@ CONFIG_DEFAULT_TCP_CONG="bbr"
 CONFIG_DEFAULT_BBR=y
 EOF
 echo "已成功写入开启配置"
+fi
 
 if [[ $CACHE_TRADEMARK = *"AC2100-helloworld"* ]]; then
   # 确保目标目录存在
