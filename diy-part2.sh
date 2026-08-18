@@ -97,21 +97,3 @@ CONFIG_DEFAULT_BBR=y
 EOF
 echo "已成功写入开启配置"
 fi
-
-if [[ $CACHE_TRADEMARK = *"AC2100-helloworld"* ]]; then
-	mkdir -p package/base-files/files/etc/uci-defaults
-cat << 'EOF' > package/base-files/files/etc/uci-defaults/99-open-wifi
-#!/bin/sh
-
-# 不做任何复杂判断，开机直接强制开启 radio0 和 radio1
-uci set wireless.radio0.disabled='0'
-uci set wireless.radio1.disabled='0'
-uci commit wireless
-
-exit 0
-EOF
-
-chmod +x package/base-files/files/etc/uci-defaults/99-open-wifi
-
-echo "已成功写入ac2100开启配置"
-fi
