@@ -99,25 +99,20 @@ echo "已成功写入开启配置"
 fi
 
 if [[ $CACHE_TRADEMARK = *"AC2100-helloworld"* ]]; then
-  # 确保目标目录存在
-  mkdir -p files/etc/uci-defaults
+	mkdir -p package/base-files/files/etc/uci-defaults
 
-  # 使用单引号 'EOF' 防止变量在写入文件前被宿主机提前解析
-  cat << 'EOF' > files/etc/uci-defaults/99-custom-wifi
-#!/bin/sh
+	cat << 'EOF' > package/base-files/files/etc/uci-defaults/99-open-wifi
+	#!/bin/sh
 
-# xiaomi_redmi-router-ac2100 循环查找所有已识别的 radio 接口并开启
-for radio in $(uci show wireless | grep '=wifi-device' | cut -d'.' -f2 | cut -d'=' -f1); do
-    uci set wireless.${radio}.disabled='0'
-done
+	# 不做任何复杂判断，开机直接强制开启 radio0 和 radio1
+	uci set wireless.radio0.disabled='0'
+	uci set wireless.radio1.disabled='0'
+	uci commit wireless
 
-uci commit wireless
-wifi reload
-exit 0
-EOF
+	exit 0
+	EOF
 
-  # 赋予可执行权限
-  chmod +x files/etc/uci-defaults/99-custom-wifi
+	chmod +x package/base-files/files/etc/uci-defaults/99-open-wifi
 
-  echo "已成功写入ac2100开启配置"
+	echo "已成功写入ac2100开启配置"
 fi
