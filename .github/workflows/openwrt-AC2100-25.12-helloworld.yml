@@ -255,6 +255,7 @@ jobs:
         run: |
           set -euo pipefail
           cd openwrt
+          sed -i 's/set ${si}\.disabled=.*/set ${si}\.disabled=\x270\x27/' package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc
           echo "🚀 开始构建 Host 工具链 (tools/install)..."
           make tools/install -j$(nproc) || make tools/install -j1 V=s
           echo "🚀 开始构建 Toolchain..."
