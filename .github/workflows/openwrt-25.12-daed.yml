@@ -139,16 +139,8 @@ jobs:
             exit 1
           }
           # 克隆各核心功能插件
-          git_clone_retry https://github.com/sbwml/luci-app-mosdns.git v5 package/mosdns
-          git_clone_retry https://github.com/sbwml/v2ray-geodata.git master package/v2ray-geodata
           git_clone_retry https://github.com/sdhz151/openwrt-app.git main package/app
           git_clone_retry https://github.com/kenzok8/openwrt-daede.git main package/daed
-
-          # 移除冲突的官方包
-          if [ -d "feeds/packages/net/v2ray-geodata" ]; then
-            rm -rf feeds/packages/net/v2ray-geodata
-            echo "🔧 已删除官方Feeds冲突的v2ray-geodata包"
-          fi
 
       # 步骤9：处理插件软链接/目录结构+清理冗余文件
       - name: 处理插件软链接/目录结构（适配编译规则）
