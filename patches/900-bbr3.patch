@@ -37,15 +37,15 @@ index 5f56fa878..a5394a24d 100644
  
  	/* TX read-write hotpath cache lines */
 @@ -301,7 +302,8 @@ struct tcp_sock {
+  *	0x5?10 << 16 + snd_wnd in net byte order
   */
- 	struct tcp_options_received rx_opt;
  	u8	nonagle     : 4,/* Disable Nagle algorithm?             */
 -		rate_app_limited:1;  /* rate_{delivered,interval_us} limited? */
 +		rate_app_limited:1,  /* rate_{delivered,interval_us} limited? */
 +		tlp_orig_data_app_limited:1; /* app-limited before TLP rtx? */
- 	__cacheline_group_end(tcp_sock_write_txrx);
- 
- 	/* RX read-write hotpath cache lines */
+ 	__be32	pred_flags;
+ 	u64	tcp_clock_cache; /* cache last tcp_clock_ns() (see tcp_mstamp_refresh()) */
+ 	u64	tcp_mstamp;	/* most recent packet received/sent */
 diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
 index bcc138ff0..1be156109 100644
 --- a/include/net/inet_connection_sock.h
