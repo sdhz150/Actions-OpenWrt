@@ -140,7 +140,6 @@ jobs:
           }
           # 克隆各核心功能插件
           git_clone_retry https://github.com/sdhz151/openwrt-app.git main package/app
-          git_clone_retry https://github.com/kenzok8/openwrt-daede.git main package/daed
 
       # 步骤9：处理插件软链接/目录结构+清理冗余文件
       - name: 处理插件软链接/目录结构（适配编译规则）
@@ -156,6 +155,36 @@ jobs:
           echo "🔧 插件软链接处理完成"
           echo "🔧 冗余目录清理完成"
           echo "STEP: Process package soft links completed — $(date +%Y-%m-%d\ %H:%M:%S)"
+
+      # 步骤9.5：下载luci-app-daed
+      - name: 下载luci-app-daed
+        run: |
+          set -euo pipefail
+          cd openwrt
+          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/coolsnowwolf/luci.git package/daed
+          cd package/daed
+          git sparse-checkout set applications/luci-app-daed
+          cd ../../
+          cp -r package/daed/applications/luci-app-daed feeds/luci/applications/luci-app-daed
+          rm -rf  package/daed
+          mkdir -p package/feeds/luci
+          ln -sf ../../../feeds/luci/applications/luci-app-daed package/feeds/luci/luci-app-daed
+          echo "🔧 luci-app-daed插件处理完成"
+
+      # 步骤9.6：下载daed
+      - name: 下载daed
+        run: |
+          set -euo pipefail
+          cd openwrt
+          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/packages.git package/daea
+          cd package/daea
+          git sparse-checkout set net/daed
+          cd ../../
+          cp -r package/daea/net/daed feeds/packages/net/daed
+          rm -rf  package/daea
+          mkdir -p package/feeds/packages
+          ln -sf ../../../feeds/packages/net/daed package/feeds/packages/daed
+          echo "🔧 daed插件处理完成"
 
       # 步骤10：安装所有OpenWrt Feeds软件包（官方）
       - name: 安装所有OpenWrt Feeds软件包
@@ -247,7 +276,7 @@ jobs:
           echo 'CONFIG_KERNEL_CGROUP_BPF=y' >>.config
           echo 'CONFIG_KERNEL_BPF_EVENTS=y' >>.config
           echo 'CONFIG_KERNEL_XDP_SOCKETS=y' >>.config
-
+          echo 'CONFIG_NEED_BPF_TOOLCHAIN=y' >>.config
           # --- XDP 与网络诊断内核模块 ---
           echo 'CONFIG_PACKAGE_kmod-xdp-sockets-diag=y' >>.config
           echo 'CONFIG_PACKAGE_kmod-sched-bpf=y' >>.config
@@ -259,12 +288,12 @@ jobs:
           echo 'CONFIG_DEFAULT_ca-bundle=y' >>.config
 
           # --- daed 核心包及图形界面 ---
-          echo 'CONFIG_PACKAGE_daed=y' >>.config
-          echo 'CONFIG_PACKAGE_luci-app-daede=y' >>.config
-          echo 'CONFIG_PACKAGE_libbpf=y' >> .config
-          echo 'CONFIG_PACKAGE_libbpf-lua=y' >> .config  
-          echo 'CONFIG_PACKAGE_bpftool=y' >> .config
-          echo 'CONFIG_KERNEL_BPF_SYSCALL=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-app-daed=y' >>.config
+          echo 'CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y' >>.config
+          echo 'CONFIG_PACKAGE_daed=y' >> .config
+          echo 'CONFIG_PACKAGE_daed-geoip=y' >> .config
+          echo 'CONFIG_PACKAGE_daed-geosite=y' >> .config
+          echo '# CONFIG_PACKAGE_librespeed-common is not set' >> .config
 
           # 再次补全配置，确保新增项生效
           make defconfig >/dev/null 2>&1
