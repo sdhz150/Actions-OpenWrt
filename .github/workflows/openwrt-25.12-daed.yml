@@ -161,7 +161,7 @@ jobs:
         run: |
           set -euo pipefail
           cd openwrt
-          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/coolsnowwolf/luci.git package/daed
+          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/luci.git package/daed
           cd package/daed
           git sparse-checkout set applications/luci-app-daed
           cd ../../
