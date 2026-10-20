@@ -150,15 +150,15 @@ jobs:
             echo "🔧 已删除官方Feeds冲突的v2ray-geodata包"
           fi
 
-      # 步骤8.5：安装sing-box插件（immortalwrt最新版，避免版本冲突）
-      - name: 安装sing-box插件（immortalwrt最新版）
+      # 步骤8.5：安装sing-box插件（openwrt最新版，避免版本冲突）
+      - name: 安装sing-box插件（openwrt最新版）
         run: |
           set -euo pipefail
           cd openwrt
           mkdir -p package/singbox
           cd package/singbox
           git init
-          git remote add origin https://github.com/immortalwrt/packages.git
+          git remote add origin https://github.com/openwrt/packages.git
           git config core.sparsecheckout true
           echo "net/sing-box" >> .git/info/sparse-checkout
           git pull --depth 1 origin master
@@ -264,8 +264,8 @@ jobs:
           # 开启homeproxy插件，写入.config配置文件，编译系统自动识别
           echo "CONFIG_PACKAGE_luci-app-homeproxy=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y" >> .config
-          echo "# CONFIG_PACKAGE_sing-box is not set" >> .config
-          echo "CONFIG_PACKAGE_sing-box-tiny=y" >> .config
+          echo "CONFIG_PACKAGE_sing-box=y" >> .config
+          echo "# CONFIG_PACKAGE_sing-box-tiny is not set" >> .config
           # 再次补全配置，确保新增项生效
           make defconfig >/dev/null 2>&1
           echo "🔧 固件配置加载&优化补丁应用完成，核心插件已强制开启"
