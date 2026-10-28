@@ -227,8 +227,8 @@ jobs:
           echo 'CONFIG_NEED_BPF_TOOLCHAIN=y' >>.config
           # --- dae & honk 内核底层支持,核心包及图形界面 ---
           echo 'CONFIG_PACKAGE_libstdcpp=y' >>.config
-          echo 'CONFIG_PACKAGE_vmlinux-btf=y' >>.config
-          echo '# CONFIG_PACKAGE_vmlinux-btf-builtin is not set' >>.config
+          echo 'CONFIG_PACKAGE_vmlinux-btf-builtin=y' >>.config
+          echo '# CONFIG_PACKAGE_vmlinux-btf is not set' >>.config
           echo 'CONFIG_PACKAGE_kmod-nfnetlink-queue=y' >>.config
           echo 'CONFIG_PACKAGE_kmod-nft-queue=y' >>.config
           echo 'CONFIG_PACKAGE_kmod-sched-bpf=y' >>.config
