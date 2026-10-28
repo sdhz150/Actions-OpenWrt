@@ -215,6 +215,7 @@ jobs:
 
           # --- eBPF & BTF 内核底层支持 ---
           echo 'CONFIG_DEVEL=y' >>.config
+          echo 'CONFIG_DEBUG_INFO_BTF=y' >>.config
           echo 'CONFIG_BPF_TOOLCHAIN_HOST=y' >>.config
           echo 'CONFIG_KERNEL_DEBUG_INFO=y' >>.config
           echo 'CONFIG_KERNEL_DEBUG_INFO_REDUCED=n' >>.config
