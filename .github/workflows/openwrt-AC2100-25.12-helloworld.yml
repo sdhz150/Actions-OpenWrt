@@ -5,8 +5,8 @@ name: openwrt-AC2100-25.12-helloworld
 # 工作流触发方式：手动触发(核心)+定时触发+仓库事件触发
 on:
   repository_dispatch:
-  schedule:
-    - cron: 0 21 * * 1,3,5
+  # schedule:
+    # - cron: 0 21 * * 1,3,5
   workflow_dispatch:
     inputs:
       ssh:
