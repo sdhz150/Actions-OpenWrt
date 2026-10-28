@@ -212,6 +212,17 @@ jobs:
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
 
+          # --- eBPF & BTF 内核底层支持 ---
+          echo 'CONFIG_DEVEL=y' >>.config
+          echo 'CONFIG_BPF_TOOLCHAIN_HOST=y' >>.config
+          echo 'CONFIG_KERNEL_DEBUG_INFO=y' >>.config
+          echo 'CONFIG_KERNEL_DEBUG_INFO_REDUCED=n' >>.config
+          echo 'CONFIG_KERNEL_DEBUG_INFO_BTF=y' >>.config
+          echo 'CONFIG_KERNEL_CGROUPS=y' >>.config
+          echo 'CONFIG_KERNEL_CGROUP_BPF=y' >>.config
+          echo 'CONFIG_KERNEL_BPF_EVENTS=y' >>.config
+          echo 'CONFIG_KERNEL_XDP_SOCKETS=y' >>.config
+          echo 'CONFIG_NEED_BPF_TOOLCHAIN=y' >>.config
           # --- dae & honk 内核底层支持,核心包及图形界面 ---
           echo 'CONFIG_PACKAGE_libstdcpp=y' >>.config
           echo 'CONFIG_PACKAGE_vmlinux-btf=y' >>.config
