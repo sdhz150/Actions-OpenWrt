@@ -142,8 +142,8 @@ jobs:
           # 克隆各核心功能插件
           git_clone_retry https://github.com/sbwml/luci-app-mosdns.git v5 package/mosdns
           git_clone_retry https://github.com/daeuniverse/openwrt-packages.git main package/dae
-          cd package/dae/dae
-          git clone --recurse-submodules https://github.com/daeuniverse/dae src
+          git clone --recurse-submodules https://github.com/daeuniverse/dae.git package/dae/dae/src
+          git_clone_retry https://github.com/daeuniverse/honk.git main package/dae/honk/src
 
       # 步骤10：安装所有OpenWrt Feeds软件包（官方）
       - name: 安装所有OpenWrt Feeds软件包
