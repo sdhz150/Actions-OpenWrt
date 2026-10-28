@@ -239,6 +239,17 @@ jobs:
           echo '# CONFIG_PACKAGE_luci-i18n-daeuniverse-zh-tw is not set' >>.config
           echo 'CONFIG_PACKAGE_dae=y' >>.config
           echo 'CONFIG_PACKAGE_honk=y' >>.config
+
+          # --- XDP 与网络诊断内核模块 ---
+          echo 'CONFIG_PACKAGE_kmod-xdp-sockets-diag=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-sched-bpf=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-sched-core=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-nft-tproxy=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-veth=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-tun=y' >>.config
+          echo 'CONFIG_PACKAGE_kmod-inet-diag=y' >>.config
+          echo 'CONFIG_DEFAULT_ca-bundle=y' >>.config
+
           # 再次补全配置，确保新增项生效
           make defconfig >/dev/null 2>&1
           echo "🔧 固件配置加载&优化补丁应用完成，核心插件已强制开启"
