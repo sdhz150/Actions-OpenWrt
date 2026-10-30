@@ -194,6 +194,36 @@ jobs:
           ln -sf ../../../feeds/packages/net/daed package/feeds/packages/daed
           echo "🔧 daed插件处理完成"
 
+      # 步骤9.7：下载luci-app-dae
+      - name: 下载luci-app-dae
+        run: |
+          set -euo pipefail
+          cd openwrt
+          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/luci.git package/dae
+          cd package/dae
+          git sparse-checkout set applications/luci-app-dae
+          cd ../../
+          cp -r package/dae/applications/luci-app-dae feeds/luci/applications/luci-app-dae
+          rm -rf  package/dae
+          mkdir -p package/feeds/luci
+          ln -sf ../../../feeds/luci/applications/luci-app-dae package/feeds/luci/luci-app-dae
+          echo "🔧 luci-app-dae插件处理完成"
+
+      # 步骤9.8：下载dae
+      - name: 下载dae
+        run: |
+          set -euo pipefail
+          cd openwrt
+          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/packages.git package/daea
+          cd package/daea
+          git sparse-checkout set net/dae
+          cd ../../
+          cp -r package/daea/net/dae feeds/packages/net/dae
+          rm -rf  package/daea
+          mkdir -p package/feeds/packages
+          ln -sf ../../../feeds/packages/net/dae package/feeds/packages/dae
+          echo "🔧 dae插件处理完成"
+
       # 步骤10：安装所有OpenWrt Feeds软件包（官方）
       - name: 安装所有OpenWrt Feeds软件包
         run: |
@@ -302,6 +332,12 @@ jobs:
           echo 'CONFIG_PACKAGE_daed-geoip=y' >> .config
           echo 'CONFIG_PACKAGE_daed-geosite=y' >> .config
           echo '# CONFIG_PACKAGE_librespeed-common is not set' >> .config
+          # --- dae 核心包及图形界面 ---
+          echo 'CONFIG_PACKAGE_luci-app-dae=y' >>.config
+          echo 'CONFIG_PACKAGE_luci-i18n-dae-zh-cn=y' >>.config
+          echo 'CONFIG_PACKAGE_dae=y' >> .config
+          echo 'CONFIG_PACKAGE_dae-geoip=y' >> .config
+          echo 'CONFIG_PACKAGE_dae-geosite=y' >> .config
 
           # 再次补全配置，确保新增项生效
           make defconfig >/dev/null 2>&1
