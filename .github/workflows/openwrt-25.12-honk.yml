@@ -322,8 +322,7 @@ jobs:
           body: |
             ## 📦 OpenWrt  固件编译结果
             - 固件架构: ${{ env.DEVICE_NAME }} (x86_64)
-            - 内核规则: nftables（新一代内核防火墙，性能更优）
-            - 核心插件: dae/mosdns/honk
+            - 核心插件: mosdns/honk
             - 编译时间: ${{ env.BUILD_DATE }}
             - SSH调试: 支持手动触发开启，仅仓库所有者可连接
           draft: false
