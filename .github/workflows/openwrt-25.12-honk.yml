@@ -238,7 +238,7 @@ jobs:
           echo 'CONFIG_PACKAGE_honk=y' >>.config
           echo 'CONFIG_PACKAGE_luci-i18n-honk-zh-cn=y' >>.config
           echo 'CONFIG_HONK_USE_KERNEL_BTF=y' >>.config
-          echo 'CONFIG_PACKAGE_unzip=y' >>.config
+          # echo 'CONFIG_PACKAGE_unzip=y' >>.config
           # 再次补全配置，确保新增项生效
           make defconfig >/dev/null 2>&1
           echo "🔧 固件配置加载&优化补丁应用完成，核心插件已强制开启"
