@@ -68,6 +68,8 @@ routing {
     
     pname(mosdns) && dip(geoip:private) -> must_direct
 
+    pname(mosdns) && domain(geosite:cn) -> must_direct
+
     # ==================== 2. 内网基础流量放行 ====================
     
     # 所有人访问局域网内部（如路由器后台、NAS 等）全部直连
