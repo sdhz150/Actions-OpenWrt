@@ -173,6 +173,7 @@ jobs:
           cd package/daed
           git sparse-checkout set applications/luci-app-daed
           cd ../../
+          mkdir -p feeds/luci/applications/luci-app-daed
           cp -r package/daed/applications/luci-app-daed/* feeds/luci/applications/luci-app-daed
           rm -rf  package/daed
           mkdir -p package/feeds/luci
@@ -188,6 +189,7 @@ jobs:
           cd package/daea
           git sparse-checkout set net/daed
           cd ../../
+          mkdir -p feeds/packages/net/daed
           cp -r package/daea/net/daed/* feeds/packages/net/daed
           rm -rf  package/daea
           mkdir -p package/feeds/packages
@@ -203,6 +205,7 @@ jobs:
           cd package/dae
           git sparse-checkout set applications/luci-app-dae
           cd ../../
+          mkdir -p feeds/luci/applications/luci-app-dae
           cp -r package/dae/applications/luci-app-dae/* feeds/luci/applications/luci-app-dae
           rm -rf  package/dae
           mkdir -p package/feeds/luci
@@ -218,6 +221,7 @@ jobs:
           cd package/daea
           git sparse-checkout set net/dae
           cd ../../
+          mkdir -p feeds/packages/net/dae
           cp -r package/daea/net/dae/* feeds/packages/net/dae
           rm -rf  package/daea
           mkdir -p package/feeds/packages
