@@ -173,7 +173,7 @@ jobs:
           cd package/daed
           git sparse-checkout set applications/luci-app-daed
           cd ../../
-          cp -r package/daed/applications/luci-app-daed feeds/luci/applications/luci-app-daed
+          cp -r package/daed/applications/luci-app-daed/* feeds/luci/applications/luci-app-daed
           rm -rf  package/daed
           mkdir -p package/feeds/luci
           ln -sf ../../../feeds/luci/applications/luci-app-daed package/feeds/luci/luci-app-daed
@@ -188,7 +188,7 @@ jobs:
           cd package/daea
           git sparse-checkout set net/daed
           cd ../../
-          cp -r package/daea/net/daed feeds/packages/net/daed
+          cp -r package/daea/net/daed/* feeds/packages/net/daed
           rm -rf  package/daea
           mkdir -p package/feeds/packages
           ln -sf ../../../feeds/packages/net/daed package/feeds/packages/daed
@@ -203,7 +203,7 @@ jobs:
           cd package/dae
           git sparse-checkout set applications/luci-app-dae
           cd ../../
-          cp -r package/dae/applications/luci-app-dae feeds/luci/applications/luci-app-dae
+          cp -r package/dae/applications/luci-app-dae/* feeds/luci/applications/luci-app-dae
           rm -rf  package/dae
           mkdir -p package/feeds/luci
           ln -sf ../../../feeds/luci/applications/luci-app-dae package/feeds/luci/luci-app-dae
@@ -218,9 +218,11 @@ jobs:
           cd package/daea
           git sparse-checkout set net/dae
           cd ../../
-          cp -r package/daea/net/dae feeds/packages/net/dae
+          cp -r package/daea/net/dae/* feeds/packages/net/dae
           rm -rf  package/daea
           mkdir -p package/feeds/packages
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.1.1/g' feeds/packages/net/dae/Makefile
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=880d56d2f4b80c009c29693a5ec1d6a44b4958aeba6323af879787934ee0e855/g' feeds/packages/net/dae/Makefile
           ln -sf ../../../feeds/packages/net/dae package/feeds/packages/dae
           echo "🔧 dae插件处理完成"
 
