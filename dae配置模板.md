@@ -35,7 +35,9 @@ dns {
 # 代理节点与订阅源配置
 
 node {
+
     # 手动填写静态单个节点
+    
     node_static: 'vless://'
 }
 
@@ -43,9 +45,13 @@ node {
 
 group {
     proxy {
+    
         policy: min_moving_avg
+        
     }
+    
 }
+
 routing {
 
     # 无论哪个设备发起请求，MosDNS 自身的解析流程必须优先保障，防止死循环
