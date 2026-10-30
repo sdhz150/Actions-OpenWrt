@@ -1,7 +1,9 @@
 # ------------mosdns开启---------------
+
 防止 DNS 泄漏
 
 # 远程 DNS 服务器
+
 8.8.8.8, 1.1.1.1, 9.9.9.9，选其它DNS在dae的routing下定义
 
 ----------------dae-----------------------
@@ -27,8 +29,11 @@ global {
 # DNS 智能分流解析配置
 
 dns {
+
     upstream {
+    
         mosdns: 'udp://127.0.0.1:5335'
+        
     }
 }
 
@@ -44,6 +49,7 @@ node {
 # 策略组配置
 
 group {
+
     proxy {
     
         policy: min_moving_avg
@@ -57,7 +63,9 @@ routing {
     # 无论哪个设备发起请求，MosDNS 自身的解析流程必须优先保障，防止死循环
     
     pname(mosdns) && dip(8.8.8.8, 1.1.1.1, 9.9.9.9) -> proxy
+    
     pname(mosdns) && dip(geoip:cn) -> must_direct
+    
     pname(mosdns) && dip(geoip:private) -> must_direct
 
     # ==================== 2. 内网基础流量放行 ====================
