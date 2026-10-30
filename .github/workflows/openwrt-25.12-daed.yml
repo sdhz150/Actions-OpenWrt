@@ -164,38 +164,6 @@ jobs:
           echo "🔧 冗余目录清理完成"
           echo "STEP: Process package soft links completed — $(date +%Y-%m-%d\ %H:%M:%S)"
 
-      # 步骤9.5：下载luci-app-daed
-      - name: 下载luci-app-daed
-        run: |
-          set -euo pipefail
-          cd openwrt
-          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/luci.git package/daed
-          cd package/daed
-          git sparse-checkout set applications/luci-app-daed
-          cd ../../
-          mkdir -p feeds/luci/applications/luci-app-daed
-          cp -r package/daed/applications/luci-app-daed/* feeds/luci/applications/luci-app-daed
-          rm -rf  package/daed
-          mkdir -p package/feeds/luci
-          ln -sf ../../../feeds/luci/applications/luci-app-daed package/feeds/luci/luci-app-daed
-          echo "🔧 luci-app-daed插件处理完成"
-
-      # 步骤9.6：下载daed
-      - name: 下载daed
-        run: |
-          set -euo pipefail
-          cd openwrt
-          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/packages.git package/daea
-          cd package/daea
-          git sparse-checkout set net/daed
-          cd ../../
-          mkdir -p feeds/packages/net/daed
-          cp -r package/daea/net/daed/* feeds/packages/net/daed
-          rm -rf  package/daea
-          mkdir -p package/feeds/packages
-          ln -sf ../../../feeds/packages/net/daed package/feeds/packages/daed
-          echo "🔧 daed插件处理完成"
-
       # 步骤9.7：下载luci-app-dae
       - name: 下载luci-app-dae
         run: |
@@ -332,11 +300,11 @@ jobs:
           echo 'CONFIG_DEFAULT_ca-bundle=y' >>.config
 
           # --- daed 核心包及图形界面 ---
-          echo 'CONFIG_PACKAGE_luci-app-daed=y' >>.config
-          echo 'CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y' >>.config
-          echo 'CONFIG_PACKAGE_daed=y' >> .config
-          echo 'CONFIG_PACKAGE_daed-geoip=y' >> .config
-          echo 'CONFIG_PACKAGE_daed-geosite=y' >> .config
+          # echo 'CONFIG_PACKAGE_luci-app-daed=y' >>.config
+          # echo 'CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y' >>.config
+          # echo 'CONFIG_PACKAGE_daed=y' >> .config
+          # echo 'CONFIG_PACKAGE_daed-geoip=y' >> .config
+          # echo 'CONFIG_PACKAGE_daed-geosite=y' >> .config
           echo '# CONFIG_PACKAGE_librespeed-common is not set' >> .config
           # --- dae 核心包及图形界面 ---
           echo 'CONFIG_PACKAGE_luci-app-dae=y' >>.config
