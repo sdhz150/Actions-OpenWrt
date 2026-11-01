@@ -63,10 +63,12 @@ routing {
 
     # 无论哪个设备发起请求，MosDNS 自身的解析流程必须优先保障，防止死循环
     
-    pname(mosdns) && dip(8.8.8.8, 1.1.1.1, 9.9.9.9) -> proxy
-    
+    pname(mosdns) && dip(208.67.222.222, 8.8.8.8, 1.1.1.1, 9.9.9.9, '2606:4700:4700::1111', '2001:4860:4860::8888', '2620:fe::fe') -> proxy
+
+    pname(mosdns) && dip(224.0.0.0/3, 'ff00::/8') -> must_direct
+
     pname(mosdns) && dip(geoip:cn) -> must_direct
-    
+
     pname(mosdns) && dip(geoip:private) -> must_direct
 
     pname(mosdns) && domain(geosite:cn) -> must_direct
@@ -76,6 +78,8 @@ routing {
     # 所有人访问局域网内部（如路由器后台、NAS 等）全部直连
     
     dip(geoip:private) -> must_direct
+
+    dip(224.0.0.0/3, 'ff00::/8') -> must_direct
     
     # 广告相关域名及 IP 全局拦截
     
