@@ -1,0 +1,34 @@
+From 34173e5ea9cf70ffb4f9cc48398af9dbbf003a29 Mon Sep 17 00:00:00 2001
+From: xxxxx <xxxx@xxxx.com>
+Date: Sun, 1 Nov 2026 14:17:18 +0800
+Subject: [PATCH] v2ray-geodata-xray
+
+---
+ Makefile | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/feeds/packages/net/v2ray-geodata/Makefile b/feeds/packages/net/v2ray-geodata/Makefile
+index 3460c63..e190eac 100644
+--- a/feeds/packages/net/v2ray-geodata/Makefile
++++ b/feeds/packages/net/v2ray-geodata/Makefile
+@@ -88,13 +88,15 @@ define Build/Compile
+ endef
+ 
+ define Package/v2ray-geoip/install
+-	$(INSTALL_DIR) $(1)/usr/share/v2ray $(1)/usr/share/xray
++	mkdir -p $(1)/usr/share/v2ray
++	mkdir -p $(1)/usr/share/xray
+ 	$(INSTALL_DATA) $(DL_DIR)/$(GEOIP_FILE) $(1)/usr/share/v2ray/geoip.dat
+ 	$(LN) ../v2ray/geoip.dat $(1)/usr/share/xray/geoip.dat
+ endef
+ 
+ define Package/v2ray-geosite/install
+-	$(INSTALL_DIR) $(1)/usr/share/v2ray $(1)/usr/share/xray
++	mkdir -p $(1)/usr/share/v2ray
++	mkdir -p $(1)/usr/share/xray
+ 	$(INSTALL_DATA) $(DL_DIR)/$(GEOSITE_FILE) $(1)/usr/share/v2ray/geosite.dat
+ 	$(LN) ../v2ray/geosite.dat $(1)/usr/share/xray/geosite.dat
+ endef
+-- 
+2.52.0
+
