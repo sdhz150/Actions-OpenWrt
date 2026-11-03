@@ -305,6 +305,7 @@ jobs:
           body: |
             ## 📦 OpenWrt  固件编译结果
             - 固件架构: ${{ env.DEVICE_NAME }} (x86_64)
+            - 配置模板: https://raw.githubusercontent.com/sdhz150/Actions-OpenWrt/refs/heads/main/v2raya%E9%85%8D%E7%BD%AE.md
             - 编译时间: ${{ env.BUILD_DATE }}
           draft: false
           prerelease: false
