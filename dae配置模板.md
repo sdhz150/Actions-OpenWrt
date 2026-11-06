@@ -35,6 +35,11 @@ dns {
         mosdns: 'udp://127.0.0.1:5335'
         
     }
+    routing {
+      request {
+        fallback: mosdns
+      }
+   }
 }
 
 # 代理节点与订阅源配置
@@ -62,6 +67,8 @@ group {
 routing {
 
     # 无论哪个设备发起请求，MosDNS 自身的解析流程必须优先保障，防止死循环
+    
+    pname(mosdns) && l4proto(udp) && dport(53) && dport(5335)-> must_direct
     
     pname(mosdns) && dip(208.67.222.222, 8.8.8.8, 1.1.1.1, 9.9.9.9, '2606:4700:4700::1111', '2001:4860:4860::8888', '2620:fe::fe') -> proxy
 
