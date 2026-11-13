@@ -193,8 +193,8 @@ jobs:
           cp -r package/daea/net/dae/* feeds/packages/net/dae
           rm -rf  package/daea
           mkdir -p package/feeds/packages
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.1.1/g' feeds/packages/net/dae/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=880d56d2f4b80c009c29693a5ec1d6a44b4958aeba6323af879787934ee0e855/g' feeds/packages/net/dae/Makefile
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.1.2/g' feeds/packages/net/dae/Makefile
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=f03a6c66a2ce000e36310d66ccd270d05b3cf1dab293f084bcae5da9fa36c33e/g' feeds/packages/net/dae/Makefile
           ln -sf ../../../feeds/packages/net/dae package/feeds/packages/dae
           echo "🔧 dae插件处理完成"
 
