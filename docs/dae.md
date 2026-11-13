@@ -1,0 +1,106 @@
+# ------------mosdns开启---------------
+
+防止 DNS 泄漏
+
+# 远程 DNS 服务器
+
+8.8.8.8, 1.1.1.1, 9.9.9.9，选其它DNS在dae的routing下定义
+
+# ------------dae--设置-------------
+
+global {
+
+    # 基础路由与接口配置
+    
+    tproxy_port: 12345
+    lan_interface: "br-lan"
+    wan_interface: "auto"
+
+    # 核心分流与解析策略
+    
+    dial_mode: "domain+"
+    
+    # 性能与兼容性优化（由 dae 自动处理内核与防火墙）
+    
+    auto_config_kernel_parameter: true
+    auto_config_firewall_rule: true # 强烈建议改为 true
+}
+
+# DNS 智能分流解析配置
+
+dns {
+
+    upstream {
+    
+        mosdns: 'udp://127.0.0.1:5335'
+        
+    }
+    routing {
+      request {
+        fallback: mosdns
+      }
+   }
+}
+
+# 代理节点与订阅源配置
+
+node {
+
+    # 手动填写静态单个节点
+    
+    node_static_a: 'vless://'
+    # node_static_b: 'vless://'
+}
+
+# 策略组配置
+
+group {
+
+    proxy {
+
+        # 对多单节点开启
+
+        # policy: min_moving_avg
+
+        # 对于单节点，直接使用 random 策略
+
+        policy: random
+        
+    }
+    
+}
+
+routing {
+
+    # 无论哪个设备发起请求，MosDNS 自身的解析流程必须优先保障，防止死循环
+
+    dport(5335, 53) -> must_direct
+
+    dip(geoip:private, geoip:cn) -> must_direct
+
+    dip(208.67.222.222, 8.8.8.8, 1.1.1.1, 9.9.9.9, '2606:4700:4700::1111', '2001:4860:4860::8888', '2620:fe::fe') -> proxy
+
+    dip(224.0.0.0/3, 'ff00::/8') -> must_direct
+
+    domain(geosite:cn) -> must_direct
+    
+    # 广告相关域名及 IP 全局拦截
+    
+    # domain(geosite:category-ads-all) -> block
+
+    # ==================== 3. 核心分流：指定 IP 允许出海 ====================
+    
+    # 【核心规则】只有来自 ipv4 的流量，在访问海外域名或海外 IP 时，才走proxy，不支持ipv6 
+    
+    # sip(192.168.2.224) && !dip(geoip:cn) && !dip(geoip:private) && !domain(geosite:cn)-> proxy
+    
+    # 【核心规则】只有来自mac地址的流量，在访问海外域名或海外 IP 时，才走proxy，支持ipv6
+    
+    mac('cc:bb:aa:11:11:11') && !dip(geoip:cn) && !dip(geoip:private) && !domain(geosite:cn)-> proxy
+
+    # ==================== 4. 兜底策略 ====================
+    
+    # 其他所有设备、所有未命中的剩余流量全部强制直连
+    
+    fallback: must_direct
+}
