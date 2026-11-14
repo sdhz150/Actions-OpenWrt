@@ -62,9 +62,10 @@ group {
 
         # policy: min_moving_avg
 
-        # 对于单节点，直接使用 random 策略
+        # 对于单节点，直接使用 fixed 策略
 
-        policy: random
+        filter: name('node_static_a')
+        policy: fixed(0)
         
     }
     
