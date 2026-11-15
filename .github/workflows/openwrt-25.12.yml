@@ -151,6 +151,7 @@ jobs:
           sed -i 's/PKG_HASH:=.*/PKG_HASH:=1b43b5140245864c0de91e8f395614dbe2b002d77c7bb32aa9ef15c761925014/g' feeds/packages/net/v2raya/Makefile
           sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.5.15/g' feeds/packages/net/v2raya/Makefile
           sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/v2raya/Makefile
+          rm -rf feeds/packages/net/v2raya/patches/010-reduce-GeoIP-parser-memory-usage.patch
           echo "🔧 修改 v2raya 版本完成"
           ./scripts/feeds install -a
           echo "🔧 Feeds 安装完成，总包数: $(ls package/feeds/ | wc -l)"
