@@ -117,19 +117,6 @@ jobs:
           cd openwrt
           ./scripts/feeds update -a
           echo "🔧 Feeds源更新已完成"
-          echo "🔧 修改 v2raya 版本"
-          sed -i 's/HASH:=89b.*/HASH:=5e4dc08ca1dd89d3cc627d951018739c753ced272bd698d8778bed3bba2197e7/g' feeds/packages/net/v2raya/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=1b43b5140245864c0de91e8f395614dbe2b002d77c7bb32aa9ef15c761925014/g' feeds/packages/net/v2raya/Makefile
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.5.15/g' feeds/packages/net/v2raya/Makefile
-          sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/v2raya/Makefile
-          rm -rf feeds/packages/net/v2raya/patches/010-reduce-GeoIP-parser-memory-usage.patch
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=26.11.9/g' feeds/packages/net/xray-core/Makefile
-          sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/xray-core/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=d5a47bed1b85e1cdfe3cb2f88a02e2db7144f0f8bee541d20b84fafa8fdf6c8d/g' feeds/packages/net/xray-core/Makefile
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=5.56.0/g' feeds/packages/net/v2ray-core/Makefile
-          sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/v2ray-core/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=ab0f2c416d90e6449a49e4ae0da015778a11fc3884dc782e17553234be928475/g' feeds/packages/net/v2ray-core/Makefile
-          echo "🔧 修改 v2raya 版本完成"
           echo "STEP: Update all OpenWrt feeds completed — $(date +%Y-%m-%d\ %H:%M:%S)"
 
       # 步骤8：克隆核心插件
