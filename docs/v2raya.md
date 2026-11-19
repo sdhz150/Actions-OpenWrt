@@ -25,11 +25,8 @@ domain(domain:mail.qq.com)->direct
 domain(geosite:category-scholar-!cn, geosite:category-scholar-cn)->direct
 domain(geosite:cn)->direct
 ip(geoip:private, geoip:cn)->direct
-ip(208.67.222.222, 8.8.8.8, 8.8.4.4, 1.1.1.1, 1.0.0.1, 9.9.9.9, 149.112.112.112, 208.67.220.220, '2606:4700:4700::1111', '2001:4860:4860::8888', '2620:fe::fe') -> proxy
-
 # 指定ip走代理
 source(ipv4) -> proxy
-
 default: direct
 
 # 4---------DNS 设置---------------------
