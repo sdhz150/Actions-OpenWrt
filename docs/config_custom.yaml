@@ -1,5 +1,5 @@
 log:
-  level: info
+  level: warn
   file: "/var/log/mosdns.log"
 
 # API 入口设置
@@ -53,19 +53,17 @@ plugins:
     args:
       upstreams:
         - addr: "https://dns.alidns.com/dns-query"
+        - addr: "tls://dns.alidns.com"
           bootstrap: 223.5.5.5
-        - addr: tls://dns.alidns.com
 
   # 转发至远程服务器
   - tag: forward_remote
     type: forward
     args:
       upstreams:
-        - addr: tls://9.9.9.9
-          socks5: "127.0.0.1:20170"
-          enable_pipeline: false
         - addr: tls://1.1.1.1
-          socks5: "127.0.0.1:20170"
+        - addr: "tls://dns.google"
+          #socks5: "127.0.0.1:20170"
           enable_pipeline: false
 
   # 国内解析
@@ -139,7 +137,8 @@ plugins:
       - exec: jump has_resp_sequence
       - exec: $query_is_no_local_domain
       - exec: jump has_resp_sequence
-      - exec: $query_is_remote           # 开启防止 DNS 泄漏
+      - exec: $query_is_remote
+      #- exec: $fallback
 
   # 启动 udp 服务器。
   - tag: udp_server
