@@ -21,7 +21,7 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: config/x86/config.buildinfo
   CONFIG_URL: https://raw.githubusercontent.com/sdhz152/Actions-OpenWrt/refs/heads/main/config/x86/config.buildinfo
-  OFFICIAL_CONFIG_URL: https://raw.githubusercontent.com/sdhz151/Actions-OpenWrt/refs/heads/main/config/x86/config.buildinfo
+  OFFICIAL_CONFIG_URL: https://raw.githubusercontent.com/sdhz152/Actions-OpenWrt/refs/heads/main/config/x86/config.buildinfo
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
@@ -71,6 +71,7 @@ jobs:
             python3-setuptools rsync swig unzip zlib1g-dev file wget \
             llvm python3-pyelftools libpython3-dev aria2 jq qemu-utils ccache rename \
             libelf-dev device-tree-compiler libgmp3-dev libmpc-dev libfuse-dev \
+            curl ca-certificates python3 zstd llvm-dev libclang-dev libbpf-dev cmake \
             libffi-dev meson ninja-build pkg-config
           sudo -E apt-get -qq autoremove --purge
           sudo -E apt-get -qq clean
@@ -120,7 +121,7 @@ jobs:
           echo "STEP: Update all OpenWrt feeds completed — $(date +%Y-%m-%d\ %H:%M:%S)"
 
       # 步骤8：克隆核心插件
-      - name: 克隆mosdns/geodata/daed/openwrt-app核心插件
+      - name: 克隆mosdns/honk/daed/核心插件
         run: |
           set -euo pipefail
           cd openwrt
@@ -139,30 +140,17 @@ jobs:
             exit 1
           }
           # 克隆各核心功能插件
-          git_clone_retry https://github.com/sdhz151/openwrt-app.git main package/app
-          git_clone_retry https://github.com/sbwml/luci-app-mosdns.git v5 package/mosdns
           git_clone_retry https://github.com/sbwml/v2ray-geodata.git master package/v2ray-geodata
+          git_clone_retry https://github.com/sbwml/luci-app-mosdns.git v5 package/mosdns
+          git clone https://github.com/daeuniverse/openwrt-packages package/dae-packages
+          git clone --recurse-submodules https://github.com/daeuniverse/dae package/dae-packages/dae/src
+          git clone --recurse-submodules https://github.com/daeuniverse/honk package/dae-packages/honk/src
 
           # 移除冲突的官方包
           if [ -d "feeds/packages/net/v2ray-geodata" ]; then
             rm -rf feeds/packages/net/v2ray-geodata
             echo "🔧 已删除官方Feeds冲突的v2ray-geodata包"
           fi
-
-      # 步骤9：处理插件软链接/目录结构+清理冗余文件
-      - name: 处理插件软链接/目录结构（适配编译规则）
-        id: process-softlink
-        run: |
-          set -euo pipefail
-          cd openwrt
-          [ -d "package/app/brutal" ] && mv package/app/brutal package/
-          [ -d "package/app/vlmcsd" ] && mv package/app/vlmcsd package/
-          [ -d "package/app/luci-app-vlmcsd" ] && mv package/app/luci-app-vlmcsd feeds/luci/applications/
-          mkdir -p package/feeds/luci
-          ln -sf ../../../feeds/luci/applications/luci-app-vlmcsd package/feeds/luci/luci-app-vlmcsd
-          echo "🔧 插件软链接处理完成"
-          echo "🔧 冗余目录清理完成"
-          echo "STEP: Process package soft links completed — $(date +%Y-%m-%d\ %H:%M:%S)"
 
       # 步骤9.5：更新golang
       - name: 更新golang
@@ -191,41 +179,6 @@ jobs:
           ln -sf ../../../feeds/packages/lang/golang/golang package/feeds/packages/golang
           ln -sf ../../../feeds/packages/lang/golang/golang1.27 package/feeds/packages/golang1.27
           ln -sf ../../../feeds/packages/lang/golang/golang-bootstrap package/feeds/packages/golang-bootstrap
-
-      # 步骤9.7：下载luci-app-dae
-      - name: 下载luci-app-dae
-        run: |
-          set -euo pipefail
-          cd openwrt
-          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/luci.git package/dae
-          cd package/dae
-          git sparse-checkout set applications/luci-app-dae
-          cd ../../
-          mkdir -p feeds/luci/applications/luci-app-dae
-          cp -r package/dae/applications/luci-app-dae/* feeds/luci/applications/luci-app-dae
-          rm -rf  package/dae
-          mkdir -p package/feeds/luci
-          ln -sf ../../../feeds/luci/applications/luci-app-dae package/feeds/luci/luci-app-dae
-          echo "🔧 luci-app-dae插件处理完成"
-
-      # 步骤9.8：下载dae
-      - name: 下载dae
-        run: |
-          set -euo pipefail
-          cd openwrt
-          git clone -b master --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/packages.git package/daea
-          cd package/daea
-          git sparse-checkout set net/dae
-          cd ../../
-          mkdir -p feeds/packages/net/dae
-          cp -r package/daea/net/dae/* feeds/packages/net/dae
-          rm -rf  package/daea
-          mkdir -p package/feeds/packages
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=2.1.2/g' feeds/packages/net/dae/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=f03a6c66a2ce000e36310d66ccd270d05b3cf1dab293f084bcae5da9fa36c33e/g' feeds/packages/net/dae/Makefile
-          sed -i '/define Build\/Compile/a\'$'\t''rm -rf $(PKG_BUILD_DIR)/go-mod' feeds/packages/net/dae/Makefile
-          ln -sf ../../../feeds/packages/net/dae package/feeds/packages/dae
-          echo "🔧 dae插件处理完成"
 
       # 步骤10：安装所有OpenWrt Feeds软件包（官方）
       - name: 安装所有OpenWrt Feeds软件包
@@ -296,17 +249,7 @@ jobs:
           chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
-          
-          # 强制开启核心插件，无需手动在.config中配置
-          echo "CONFIG_PACKAGE_kmod-tcp-brutal=y" >> .config
-          echo "CONFIG_PACKAGE_luci-app-vlmcsd=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-vlmcsd-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_vlmcsd=y" >> .config
-          # 开启ssr-plus插件，写入.config配置文件，编译系统自动识别
-          echo 'CONFIG_PACKAGE_iptables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_arptables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_ebtables-nft=y' >>.config
-          echo 'CONFIG_PACKAGE_xtables-nft=y' >>.config
+
           # --- eBPF & BTF 内核底层支持 ---
           echo 'CONFIG_DEVEL=y' >>.config
           echo 'CONFIG_BPF_TOOLCHAIN_HOST=y' >>.config
@@ -327,18 +270,16 @@ jobs:
           echo 'CONFIG_PACKAGE_kmod-tun=y' >>.config
           echo 'CONFIG_PACKAGE_kmod-inet-diag=y' >>.config
           echo 'CONFIG_DEFAULT_ca-bundle=y' >>.config
-
-          # --- daed 核心包及图形界面 ---
-          # echo 'CONFIG_PACKAGE_luci-app-daed=y' >>.config
-          # echo 'CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y' >>.config
-          # echo 'CONFIG_PACKAGE_daed=y' >> .config
-          # echo 'CONFIG_PACKAGE_daed-geoip=y' >> .config
-          # echo 'CONFIG_PACKAGE_daed-geosite=y' >> .config
-          echo '# CONFIG_PACKAGE_librespeed-common is not set' >> .config
           # --- dae 核心包及图形界面 ---
+          echo '# CONFIG_PACKAGE_librespeed-common is not set' >> .config
           echo 'CONFIG_PACKAGE_luci-app-dae=y' >>.config
-          echo 'CONFIG_PACKAGE_luci-i18n-dae-zh-cn=y' >>.config
+          echo 'CONFIG_PACKAGE_luci-app-honk=y' >>.config
+          echo 'CONFIG_PACKAGE_luci-i18n-daeuniverse-zh-cn=y' >>.config
+          echo 'CONFIG_PACKAGE_luci-lib-daeuniverse=y' >>.config
+          echo '# CONFIG_PACKAGE_vmlinux-btf is not set' >>.config
+          echo 'CONFIG_PACKAGE_vmlinux-btf-builtin=y' >>.config
           echo 'CONFIG_PACKAGE_dae=y' >> .config
+          echo 'CONFIG_PACKAGE_honk=y' >>.config
           echo 'CONFIG_PACKAGE_dae-geoip=y' >> .config
           echo 'CONFIG_PACKAGE_dae-geosite=y' >> .config
 

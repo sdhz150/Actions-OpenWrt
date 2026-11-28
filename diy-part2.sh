@@ -60,6 +60,43 @@ fi
 sed -i 's/IMG_PREFIX:=/IMG_PREFIX:=$(BUILD_DATE_PREFIX)-/g' ./include/image.mk
 sed -i '/DTS_DIR:=$(LINUX_DIR)/a\BUILD_DATE_PREFIX := $(shell date +'%F')' ./include/image.mk
 
+# --------------honk----------------
+if [[ "$CACHE_TRADEMARK" = "dae" ]]; then
+set -euo pipefail
+# 2. 设置 Cargo 和 Rustup 的存放目录，并把 Cargo 可执行目录加入 PATH
+export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
+export RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}"
+export PATH="$CARGO_HOME/bin:$PATH"
+
+# 3. 从 honk 源码目录的配置文件中读取所需的 stable 和 nightly 工具链版本号
+src="$(realpath package/dae-packages/honk/src)"
+stable="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["toolchain"]["channel"])' "$src/rust-toolchain.toml")"
+nightly="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["toolchain"]["channel"])' "$src/crates/honk-ebpf/rust-toolchain.toml")"
+
+# 4. 安装 rustup，配置 stable 工具链及目标架构，并安装 eBPF 构建所需的 nightly 工具链与组件
+curl --proto '=https' --tlsv1.2 -fLsS https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none --no-modify-path
+rustup toolchain install "$stable" --profile minimal --component rustfmt,clippy
+rustup default "$stable"
+rustup target add --toolchain "$stable" x86_64-unknown-linux-gnu x86_64-unknown-linux-musl
+rustup toolchain install "$nightly" --profile minimal --component rust-src,llvm-tools
+
+# 5. 读取 CI 固定版本号并下载解压 bpf-linker 到 Cargo 的 bin 目录
+source "$src/.github/ci/pins.env"
+mkdir -p "$CARGO_HOME/bin"
+curl -fLsS "https://github.com/aya-rs/bpf-linker/releases/download/v${BPF_LINKER_VERSION}/bpf-linker-x86_64-unknown-linux-musl.tar.zst" | tar --zstd -xf - -C "$CARGO_HOME/bin"
+
+# 6. 将环境变量和 PATH 写入 GitHub Actions 后续步骤可用的环境文件中
+printf 'CARGO_HOME=%s\nRUSTUP_HOME=%s\n' "$CARGO_HOME" "$RUSTUP_HOME" >> "$GITHUB_ENV"
+printf '%s\n' "$CARGO_HOME/bin" >> "$GITHUB_PATH"
+# 8. 验证
+rustup --version
+cargo --version
+rustc --version
+bpf-linker --version
+rustup target list --installed --toolchain "$stable"
+fi
+# --------------honk----------------
+
 if ls $GITHUB_WORKSPACE/patches/0001-Revert-base-files-move-config_generate-to-preinit.patch 1> /dev/null 2>&1; then
 	git apply --quiet $GITHUB_WORKSPACE/patches/0001-Revert-base-files-move-config_generate-to-preinit.patch
     echo "✅ 已成功添加  0001-Revert-base-files-move-config_generate-to-preinit.patch补丁"
